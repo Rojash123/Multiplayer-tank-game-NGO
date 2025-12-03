@@ -1,4 +1,6 @@
+using Newtonsoft.Json;
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -24,7 +26,7 @@ public class ClientGameManager
     }
     public void GoToMenu()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
 
     public async Task StartClientAsync(string joinCode)
@@ -41,6 +43,14 @@ public class ClientGameManager
         UnityTransport transPort = NetworkManager.Singleton.GetComponent<UnityTransport>();
         RelayServerData serverData = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
         transPort.SetRelayServerData(serverData);
+
+        UserData data = new UserData()
+        {
+            userName = PlayerPrefs.GetString("Name", "Name not set")
+        };
+        var payLoad=JsonConvert.SerializeObject(data);
+        byte[] byteArray=Encoding.UTF8.GetBytes(payLoad);
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = byteArray;
         NetworkManager.Singleton.StartClient();
     }
 }

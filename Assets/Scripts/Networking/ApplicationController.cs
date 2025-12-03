@@ -6,7 +6,7 @@ public class ApplicationController : MonoBehaviour
     [SerializeField] ClientSingleton clientPrefab;
     [SerializeField] HostSingleton hostPrefab;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public async Task Start()
+    public async void Start()
     {
         DontDestroyOnLoad(gameObject);
         await IsDedicatedServer(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null);
@@ -20,6 +20,7 @@ public class ApplicationController : MonoBehaviour
         }
         else
         {
+            Debug.Log("Hello");
             ClientSingleton client= Instantiate(clientPrefab);
             bool authenticated=await client.CreateClient();
             HostSingleton host= Instantiate(hostPrefab);
