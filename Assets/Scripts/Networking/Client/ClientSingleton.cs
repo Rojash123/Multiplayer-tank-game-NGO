@@ -9,15 +9,9 @@ public class ClientSingleton : Singleton<ClientSingleton>
         base.Awake();
         DontDestroyOnLoad(gameObject);
     }
-    void Start()
+    private void OnDestroy()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        gameManager?.Dispose();
     }
 
     public async Task<bool> CreateClient()

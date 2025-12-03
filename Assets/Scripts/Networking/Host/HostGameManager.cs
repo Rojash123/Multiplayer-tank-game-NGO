@@ -1,10 +1,13 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
@@ -13,7 +16,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class HostGameManager
+public class HostGameManager:IDisposable
 {
     private Allocation allocation;
 
@@ -70,6 +73,16 @@ public class HostGameManager
             return;
         }
         networkServer = new NetworkServer(NetworkManager.Singleton);
+
+        UserData data = new UserData()
+        {
+            userName = PlayerPrefs.GetString("Name", "Name not set"),
+            userAuthId = AuthenticationService.Instance.PlayerId
+        };
+        var payLoad = JsonConvert.SerializeObject(data);
+        byte[] byteArray = Encoding.UTF8.GetBytes(payLoad);
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = byteArray;
+
         NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
     }
@@ -81,5 +94,23 @@ public class HostGameManager
             LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
             yield return delay;
         }
+    }
+
+    public async Task Dispose()
+    {
+        HostSingleton.Instance.StopCoroutine(nameof(HeartBeatLobby));
+        if (!string.IsNullOrEmpty(lobbyId))
+        {
+            try
+            {
+                await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
+            }
+            catch(LobbyServiceException e)
+            {
+                Debug.LogError(e);
+            }
+            lobbyId=string.Empty;
+        }
+        networkServer?.Dispose();
     }
 }
