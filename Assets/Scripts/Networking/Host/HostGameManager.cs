@@ -12,7 +12,6 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,7 +23,7 @@ public class HostGameManager:IDisposable
     private string lobbyId;
     private const int maxConnection = 20;
 
-    private NetworkServer networkServer;
+    public NetworkServer networkServer { get; private set;}
     public async Task StartHostAsync()
     {
         try
@@ -96,7 +95,7 @@ public class HostGameManager:IDisposable
         }
     }
 
-    public async Task Dispose()
+    public async void Dispose()
     {
         HostSingleton.Instance.StopCoroutine(nameof(HeartBeatLobby));
         if (!string.IsNullOrEmpty(lobbyId))

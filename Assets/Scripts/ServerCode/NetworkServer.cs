@@ -18,6 +18,14 @@ public class NetworkServer:IDisposable
         networkManager.ConnectionApprovalCallback += ApprovalCheck;
         networkManager.OnServerStarted += NetworkManager_OnServerStarted;
     }
+    public UserData GetUserName(ulong clientId)
+    {
+        if(ClientAuthIdDictionary.TryGetValue(clientId,out string authData))
+        {
+            return userDataDictionary[authData];
+        }
+        else { return null; }
+    }
 
     private void NetworkManager_OnServerStarted()
     {
@@ -45,6 +53,8 @@ public class NetworkServer:IDisposable
         ClientAuthIdDictionary.Add(request.ClientNetworkId, data.userAuthId);
         userDataDictionary.Add(data.userAuthId, data);
         response.Approved = true;
+        response.Position = SpawnPoint.GetRandomSpawnPos();
+        response.Rotation = Quaternion.identity;
         response.CreatePlayerObject = true;
     }
 
