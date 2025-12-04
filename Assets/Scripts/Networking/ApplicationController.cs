@@ -20,7 +20,6 @@ public class ApplicationController : MonoBehaviour
         }
         else
         {
-            Debug.Log("Hello");
             ClientSingleton client= Instantiate(clientPrefab);
             bool authenticated=await client.CreateClient();
             HostSingleton host= Instantiate(hostPrefab);

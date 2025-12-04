@@ -9,17 +9,10 @@ public class HostSingleton :Singleton<HostSingleton>
         base.Awake();
         DontDestroyOnLoad(gameObject);
     }
-    void Start()
+    private void OnDestroy()
     {
-
+        gameManager?.Dispose();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void CreateHost()
     {
         gameManager = new HostGameManager();
