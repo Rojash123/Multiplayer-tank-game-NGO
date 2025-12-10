@@ -2,7 +2,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class NetworkServer:IDisposable
@@ -11,6 +10,8 @@ public class NetworkServer:IDisposable
 
     private Dictionary<ulong, string> ClientAuthIdDictionary = new Dictionary<ulong, string>();
     private Dictionary<string, UserData> userDataDictionary=new Dictionary<string, UserData>();
+
+    public Action<string> OnClientLeft;
 
     public NetworkServer(NetworkManager manager)
     {
@@ -38,6 +39,7 @@ public class NetworkServer:IDisposable
         {
             ClientAuthIdDictionary.Remove(clientId);
             userDataDictionary.Remove(authId);
+            OnClientLeft?.Invoke(authId);
         }
 
     }

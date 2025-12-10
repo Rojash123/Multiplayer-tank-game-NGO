@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -19,4 +20,5 @@ public class ClientSingleton : Singleton<ClientSingleton>
         gameManager = new ClientGameManager();
         return await gameManager.InitAsync();
     }
+
 }
