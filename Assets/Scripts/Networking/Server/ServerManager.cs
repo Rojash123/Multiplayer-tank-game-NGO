@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Services.Matchmaker.Models;
@@ -12,15 +13,16 @@ public class ServerManager : IDisposable
     private MultiplayAllocationService multiplayAllocationService;
     private MatchplayBackfiller matchplayBackfiller;
     private NetworkObject playerPrefab;
-    
-    public NetworkServer NetworkServer {  get; private set; }
-    public ServerManager(string serverIp, int serverPort, int serverQport, NetworkManager manager,NetworkObject playerPrefab)
+    public NetworkServer NetworkServer { get; private set; }
+
+    private Dictionary<string, int> teamIdToTeamIndex = new Dictionary<string, int>();
+    public ServerManager(string serverIp, int serverPort, int serverQport, NetworkManager manager, NetworkObject playerPrefab)
     {
         this.serverIP = serverIp;
         this.serverPort = serverPort;
         this.serverQport = serverQport;
         this.playerPrefab = playerPrefab;
-        NetworkServer = new NetworkServer(manager,playerPrefab);
+        NetworkServer = new NetworkServer(manager, playerPrefab);
         multiplayAllocationService = new();
     }
     public void Dispose()
@@ -68,7 +70,12 @@ public class ServerManager : IDisposable
     }
     private void UserJoined(UserData user)
     {
-       Team team=matchplayBackfiller.GetTeambyUserID(user.userAuthId);
+        Team team = matchplayBackfiller.GetTeambyUserID(user.userAuthId);
+        if(!teamIdToTeamIndex.TryGetValue(team.TeamId,out int teamIndex))
+        {
+            teamIdToTeamIndex.Add(team.TeamId,teamIdToTeamIndex.Count);
+        }
+        user.teamIndex = teamIndex;
         multiplayAllocationService.AddPlayer();
         if (!matchplayBackfiller.NeedsPlayers() && matchplayBackfiller.IsBackfilling)
         {
