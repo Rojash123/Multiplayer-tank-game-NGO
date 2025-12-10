@@ -12,6 +12,8 @@ public class TankPlayer : NetworkBehaviour
     [field:SerializeField] public Health health { get; private set; }
     [field: SerializeField] public CoinWallet wallet { get; private set; }
 
+    [SerializeField] private Texture2D crossHair;
+
 
     private const int priority = 15;
 
@@ -24,13 +26,22 @@ public class TankPlayer : NetworkBehaviour
     {
         if (IsServer)
         {
-            UserData data = HostSingleton.Instance.gameManager.networkServer.GetUserName(OwnerClientId);
-            playerName.Value = data.userName;
-            OnPlayerSpawned?.Invoke(this);
+            UserData data = new();
+            if (IsHost)
+            {
+                data = HostSingleton.Instance.gameManager.networkServer.GetUserName(OwnerClientId);
+                playerName.Value = data.userName;
+                OnPlayerSpawned?.Invoke(this);
+            }
+            else
+            {
+                data = ServerSingleton.Instance.gameManager.NetworkServer.GetUserName(OwnerClientId);
+            }
         }
         if (IsOwner)
         {
             camera.Priority= priority;
+            Cursor.SetCursor(crossHair, new Vector2(crossHair.width / 2, crossHair.height / 2), CursorMode.Auto);
         }
     }
     public override void OnNetworkDespawn()

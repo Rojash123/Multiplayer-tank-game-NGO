@@ -15,15 +15,21 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class HostGameManager:IDisposable
+public class HostGameManager : IDisposable
 {
+    private NetworkObject playerPrefab;
+    public HostGameManager(NetworkObject playerPrefab)
+    {
+        this.playerPrefab = playerPrefab;
+    }
+
     private Allocation allocation;
 
     private string joinCode;
     private string lobbyId;
     private const int maxConnection = 20;
 
-    public NetworkServer networkServer { get; private set;}
+    public NetworkServer networkServer { get; private set; }
     public async Task StartHostAsync()
     {
         try
@@ -45,7 +51,7 @@ public class HostGameManager:IDisposable
             MyDebug.Log(e.Message);
             return;
         }
-       
+
 
         UnityTransport transPort = NetworkManager.Singleton.GetComponent<UnityTransport>();
         RelayServerData serverData = AllocationUtils.ToRelayServerData(allocation, "dtls");
@@ -71,7 +77,7 @@ public class HostGameManager:IDisposable
             Debug.Log(ex.Message);
             return;
         }
-        networkServer = new NetworkServer(NetworkManager.Singleton);
+        networkServer = new NetworkServer(NetworkManager.Singleton, playerPrefab);
 
         UserData data = new UserData()
         {
@@ -118,19 +124,17 @@ public class HostGameManager:IDisposable
 
     public async void Shutdown()
     {
+        if (string.IsNullOrEmpty(lobbyId)) return;
         HostSingleton.Instance.StopCoroutine(nameof(HeartBeatLobby));
-        if (!string.IsNullOrEmpty(lobbyId))
+        try
         {
-            try
-            {
-                await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
-            }
-            catch (LobbyServiceException e)
-            {
-                Debug.LogError(e);
-            }
-            lobbyId = string.Empty;
+            await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
         }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError(e);
+        }
+        lobbyId = string.Empty;
         networkServer.OnClientLeft -= HandleClientLeft;
         networkServer?.Dispose();
     }

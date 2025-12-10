@@ -20,7 +20,7 @@ public class UserData
 {
     public string userName;
     public string userAuthId;
-    public GameInfo userGamePreferences;
+    public GameInfo userGamePreferences=new();
     
 }
 
@@ -33,6 +33,11 @@ public class GameInfo
 
     public string ToMultiplayQueue()
     {
-        return "";
+        return gameQueue switch 
+        {
+            GameQueue.solo=>"solo-queue",
+            GameQueue.team=>"team-queue",
+            _=>"solo-queue"
+        };
     }
 }

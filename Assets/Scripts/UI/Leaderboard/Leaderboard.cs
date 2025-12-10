@@ -2,9 +2,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class Leaderboard : NetworkBehaviour
 {
@@ -48,6 +46,8 @@ public class Leaderboard : NetworkBehaviour
 
     private void LeaderBoardEntities_OnListChanged(NetworkListEvent<LeaderBoardEntity> changeEvent)
     {
+        if (!gameObject.scene.isLoaded) return;
+
         switch (changeEvent.Type)
         {
             case NetworkListEvent<LeaderBoardEntity>.EventType.Add:

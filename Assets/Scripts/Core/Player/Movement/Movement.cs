@@ -12,10 +12,19 @@ public class Movement : NetworkBehaviour
     private Rigidbody2D rb;
 
     [SerializeField] float movementSpeed=4f;
-
     [SerializeField] float turningRate = 30f;
 
+    [SerializeField] ParticleSystem dustCLoud;
+    [SerializeField] float particleEmissionValue = 10;
+    private ParticleSystem.EmissionModule emissionModule;
+
     private Vector2 previousMovement;
+    private Vector3 previousPos;
+
+    private void Awake()
+    {
+        emissionModule = dustCLoud.emission;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -33,7 +42,6 @@ public class Movement : NetworkBehaviour
     {
         previousMovement = movement;
     }
-    // Update is called once per frame
     void Update()
     {
         if (!IsOwner) return;
@@ -43,6 +51,15 @@ public class Movement : NetworkBehaviour
     }
     private void FixedUpdate()
     {
+        if ((transform.position - previousPos).sqrMagnitude > 0.005f)
+        {
+            emissionModule.rateOverTime = particleEmissionValue;
+        }
+        else
+        {
+            emissionModule.rateOverTime = 0;
+        }
+        previousPos = transform.position;
         if (!IsOwner) return;
         rb.linearVelocity=(Vector2)bodyTransform.up* previousMovement.y * movementSpeed;
     }

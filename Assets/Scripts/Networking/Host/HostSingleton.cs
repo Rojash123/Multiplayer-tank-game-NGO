@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Unity.Netcode;
 using UnityEngine;
 
 public class HostSingleton :Singleton<HostSingleton>
@@ -13,8 +14,8 @@ public class HostSingleton :Singleton<HostSingleton>
     {
         gameManager?.Dispose();
     }
-    public void CreateHost()
+    public void CreateHost(NetworkObject playePrefab)
     {
-        gameManager = new HostGameManager();
+        gameManager = new HostGameManager(playePrefab);
     }
 }
