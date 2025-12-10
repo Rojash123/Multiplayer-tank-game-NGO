@@ -68,7 +68,7 @@ public class ServerManager : IDisposable
     }
     private void UserJoined(UserData user)
     {
-        matchplayBackfiller.AddPlayerToMatch(user);
+       Team team=matchplayBackfiller.GetTeambyUserID(user.userAuthId);
         multiplayAllocationService.AddPlayer();
         if (!matchplayBackfiller.NeedsPlayers() && matchplayBackfiller.IsBackfilling)
         {
