@@ -25,13 +25,18 @@ public class NetworkClient : IDisposable
         }
     }
 
-    private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    internal void DisConnect()
     {
-        if (clientId != 0 && clientId != networkManager.LocalClientId) return;
         if (SceneManager.GetActiveScene().name != "MenuScene")
         {
             SceneManager.LoadScene("MenuScene");
         }
-        if(networkManager.IsConnectedClient)networkManager.Shutdown();
+        if (networkManager.IsConnectedClient) networkManager.Shutdown();
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    {
+        if (clientId != 0 && clientId != networkManager.LocalClientId) return;
+        DisConnect();
     }
 }
