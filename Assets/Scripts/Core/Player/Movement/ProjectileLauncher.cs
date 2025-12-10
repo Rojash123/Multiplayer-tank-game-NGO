@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ProjectileLauncher : NetworkBehaviour
 {
@@ -9,13 +10,12 @@ public class ProjectileLauncher : NetworkBehaviour
     [SerializeField]
     GameObject serverProjectilePrefab, clientProjectilePrefab;
 
+    private bool isPointerOverUI;
+
     [SerializeField]
     private Transform projectileSpawnPoint;
-
     [SerializeField] InputReader reader;
-
     [SerializeField] private GameObject muzzleFlash;
-
     [SerializeField] private Collider2D collider;
 
     [Header("Settings")]
@@ -41,6 +41,9 @@ public class ProjectileLauncher : NetworkBehaviour
         }
 
         if (!IsOwner) return;
+
+        isPointerOverUI = EventSystem.current.IsPointerOverGameObject();
+
         if (!shouldFire) return;
 
         if (Time.time - lastFireTime < (1 / fireRate)) return;
@@ -75,6 +78,13 @@ public class ProjectileLauncher : NetworkBehaviour
 
     private void Reader_OnPlayerShoot(bool obj)
     {
+        if (shouldFire)
+        {
+            if(isPointerOverUI) 
+            {
+                return;
+            }
+        }
         this.shouldFire = obj;
     }
 
