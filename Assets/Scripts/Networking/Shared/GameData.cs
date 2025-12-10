@@ -18,6 +18,7 @@ public enum GameQueue
 [Serializable]
 public class UserData
 {
+    public int teamIndex = -1;
     public string userName;
     public string userAuthId;
     public GameInfo userGamePreferences=new();
